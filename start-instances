@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Define instance IDs as variables
+instance_id1="i-09f704de6ccbf1a6b"
+instance_id2="i-YYYYYYYYYYYYYYYYY"
+instance_id3="i-ZZZZZZZZZZZZZZZZZZ"
+
+# Array of instance IDs
+instance_ids=("$instance_id1" "$instance_id2" "$instance_id3")
+
+# Loop through the instance IDs and start each instance
+for instance_id in "${instance_ids[@]}"; do
+  echo "Starting instance: $instance_id"
+  aws ec2 start-instances --instance-ids "$instance_id"
+done
+
+# Wait for instances to start
+for instance_id in "${instance_ids[@]}"; do
+  echo "Waiting for instance $instance_id to start..."
+  aws ec2 wait instance-running --instance-ids "$instance_id"
+done
+
+# Check the status of instances after starting
+aws ec2 describe-instances --instance-ids "${instance_ids[@]}"
+
+echo "Instances started successfully!"
+

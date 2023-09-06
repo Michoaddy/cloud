@@ -1,0 +1,40 @@
+#!/bin/bash
+
+# Specify the AWS region and AMI ID for your region
+region="us-east-1" # Replace with your desired region
+ami_id="ami-053b0d53c279acc90" # Replace with the AMI ID you want to use
+
+# Specify the instance type
+instance_type="t2.micro"
+
+# Specify the number of instances to launch
+num_instances=3
+
+# Specify the ID of your predefined security group
+security_group_id="sg-02bf0edda582ac0a4" # Replace with your security group ID
+
+# Loop to launch multiple instances
+for ((i=1; i<=$num_instances; i++)); do
+  instance_name="MyInstance$i"
+  
+  echo "Launching $instance_name with instance type $instance_type..."
+
+  # Get the default VPC ID
+  default_vpc_id=$(aws ec2 describe-vpcs \
+    --region $region \
+    --filters Name=isDefault,Values=true \
+    --query "Vpcs[0].VpcId" \
+    --output text)
+
+  # Launch the instance with your predefined security group and the default VPC
+  aws ec2 run-instances \
+    --region $region \
+    --image-id $ami_id \
+    --instance-type $instance_type \
+    --key-name Ec2-demo # Replace with your key pair name or remove this line if not using a key pair \
+    --security-group-ids $security_group_id \
+    --subnet-id $default_vpc_id
+
+  echo "$instance_name launched successfully."
+done
+
